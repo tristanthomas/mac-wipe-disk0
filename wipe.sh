@@ -4,6 +4,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#Execute this script under OS X Recovery from a bootable USB drive to wipe and repartition disk0.
+
 # Locate the recovery partition
 RECOVERY_PARTITION_ID=$(diskutil list | grep Apple_Boot | grep disk0 | awk '{print $7}')
 
