@@ -4,7 +4,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#Execute this script under OS X Recovery from a bootable USB drive to wipe and repartition disk0.
+# Execute this script under OS X Recovery from a bootable USB drive to wipe and repartition disk0.
+
+# Checks if the computer is booted under OS X Recovery
+BOOT_MODE=$(system_profiler SPSoftwareDataType | grep 'Boot Mode: Booted from installation CD/DVD')
+if [[  "${BOOT_MODE}" == "" ]] ; then
+	echo "WARNING: This script wipes disk0 if executed. If you intended to wipe disk0, execute this script under OS X Recovery from a bootable OS X USB install drive."
+	exit 130
+fi
 
 # Locate the recovery partition
 RECOVERY_PARTITION_ID=$(diskutil list | grep Apple_Boot | grep disk0 | awk '{print $7}')
