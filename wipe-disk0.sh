@@ -7,7 +7,7 @@
 # Execute this script under OS X Recovery from a bootable USB drive to wipe and repartition disk0.
 
 # Checks if the computer is booted under OS X Recovery
-BOOT_MODE=$(system_profiler SPSoftwareDataType | grep 'Boot Mode: Booted from installation CD/DVD')
+BOOT_MODE=$(system_profiler SPSoftwareDataType 2>/dev/null | grep 'Boot Mode: Booted from installation CD/DVD')
 if [[  "${BOOT_MODE}" == "" ]] ; then
 	echo "WARNING: This script wipes disk0 if executed. If you intended to wipe disk0, execute this script under OS X Recovery from a bootable OS X USB install drive."
 	exit 130
@@ -17,12 +17,12 @@ fi
 RECOVERY_PARTITION_ID=$(diskutil list | grep Apple_Boot | grep disk0 | awk '{print $7}')
 
 # Check the status of FileVault
-FILEVAULT_ON=$(diskutil cs list | grep disk0 -A 11 | grep "Fully Secure" | sed 's/\|//g' | awk '{print $3}')
+FILEVAULT_ON=$(diskutil cs list | grep disk0 -A 8 | grep 'Conversion Status' | awk -F ' ' '{print $3}')
 
 # If the drive is encrypted with FileVault, just the recovery partition will be wiped.
 # If FileValult is not enabled, the entire drive will be wiped.
 
-if [[  "${FILEVAULT_ON}" == "Yes" ]] ; then
+if [[  "${FILEVAULT_ON}" == "Complete" ]] ; then
 	echo "Wiping the recovery partition /dev/"${RECOVERY_PARTITION_ID}
 	diskutil zeroDisk /dev/${RECOVERY_PARTITION_ID} || {
 		echo "Failed to wipe the recovery partition /dev/"${RECOVERY_PARTITION_ID}
@@ -36,7 +36,6 @@ else
 		exit 132
 	}
 	echo "The entire drive has been wiped."
-
 fi
 
 diskutil partitionDisk /dev/disk0 GPT JHFS+ "Mac HD" 0b || {
