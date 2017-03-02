@@ -4,17 +4,21 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Execute this script under OS X Recovery from a bootable USB drive to wipe and repartition disk0.
+# Execute this script under macOS Recovery from a bootable USB drive to wipe and repartition disk0.
 
-# Checks if the computer is booted under OS X Recovery
+# Checks if the computer is booted under macOS Recovery
 BOOT_MODE=$(system_profiler SPSoftwareDataType 2>/dev/null | grep 'Boot Mode: Booted from installation CD/DVD')
 if [[  "${BOOT_MODE}" == "" ]] ; then
-	echo "WARNING: This script wipes disk0 if executed. If you intended to wipe disk0, execute this script under OS X Recovery from a bootable OS X USB install drive."
+	echo "WARNING: This script wipes disk0 if executed. If you intended to wipe disk0, execute this script under macOS Recovery from a bootable macOS USB install drive."
 	exit 130
 fi
 
 # Locate the recovery partition
 RECOVERY_PARTITION_ID=$(diskutil list | grep Apple_Boot | grep disk0 | awk '{print $7}')
+
+# Force unmount disk0 and disk1
+diskutil unmountDisk force /dev/disk1
+diskutil unmountDisk force /dev/disk0
 
 # Check the status of FileVault
 FILEVAULT_ON=$(diskutil cs list | grep disk0 -A 8 | grep 'Conversion Status' | awk -F ' ' '{print $3}')
@@ -38,7 +42,7 @@ else
 	echo "The entire drive has been wiped."
 fi
 
-diskutil partitionDisk /dev/disk0 GPT JHFS+ "Mac HD" 0b || {
+diskutil partitionDisk /dev/disk0 GPT JHFS+ "Macintosh HD" 0b || {
 	echo "Failed to format drive /dev/disk0"
 	exit 133
 }
