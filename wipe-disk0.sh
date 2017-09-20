@@ -17,8 +17,8 @@ fi
 RECOVERY_PARTITION_ID=$(diskutil list | grep Apple_Boot | grep disk0 | awk '{print $7}')
 
 # Force unmount disk0 and disk1
-diskutil unmountDisk force /dev/disk1
-diskutil unmountDisk force /dev/disk0
+diskutil quiet unmountDisk force /dev/disk1
+diskutil quiet unmountDisk force /dev/disk0
 
 # Check the status of FileVault
 FILEVAULT_ON=$(diskutil cs list | grep disk0 -A 8 | grep 'Conversion Status' | awk -F ' ' '{print $3}')
@@ -42,9 +42,10 @@ else
 	echo "The entire drive has been wiped."
 fi
 
-diskutil partitionDisk /dev/disk0 GPT JHFS+ "Macintosh HD" 0b || {
+diskutil partitionDisk /dev/disk0 GPT JHFS+ "Macintosh HD" 0b > /dev/null || {
 	echo "Failed to format drive /dev/disk0"
 	exit 133
 }
 
-echo "The drive has been formatted."
+# Output the system serial number
+system_profiler SPHardwareDataType | grep "Serial Number (system)" | sed -e 's/^ *//'
