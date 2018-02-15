@@ -24,7 +24,7 @@ echo "Wiping the internal drive, disk0..."
 	}
 	echo "The entire drive has been wiped."
 
-diskutil partitionDisk /dev/disk0 GPT APFS "Macintosh HD" 0b > /dev/null || {
+diskutil partitionDisk /dev/disk0 GPT JHFS+ "Macintosh HD" 0b > /dev/null || {
 	echo "Failed to format drive /dev/disk0"
 	exit 133
 }
